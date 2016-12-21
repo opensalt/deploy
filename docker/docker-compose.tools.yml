@@ -1,0 +1,17 @@
+version: '2'
+services:
+  phpcli:
+    image: opensalt/php:7.1-cli
+    environment:
+      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
+      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
+      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
+      SYMFONY__MYSQL__HOST: "db"
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "db"
+    volumes_from:
+      - app
+    working_dir: /var/www/html
+    command: [ /bin/true ]
