@@ -1,7 +1,7 @@
-version: '2'
+version: '2.1'
 services:
   app:
-    image: opensalt/app:${COMMIT}
+    image: "opensalt/app:${COMMIT}"
 
   phpfpm:
     image: opensalt/php:7.1-fpm
@@ -11,7 +11,20 @@ services:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "db"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
+      GITHUB_CLIENT_ID:
+      GITHUB_CLIENT_SECRET:
+      BRAND_LOGO_URL:
+      BRAND_LOGO_STYLE:
+      BRAND_LINK_URL:
+      BRAND_LINK_STYLE:
+      ALLOW_LOCAL_DEV: 'false'
+      ALLOW_EXTERNAL_DEV_IPS:
+      DEV_COOKIE:
     volumes_from:
       - app
     working_dir: /var/www/html
@@ -27,14 +40,14 @@ services:
     working_dir: /var/www/html
     networks:
       default:
-      external:
+      proxy:
         aliases:
           - "${COMPOSE_PROJECT_NAME}-salt"
 
   db:
     image: percona:${MYSQL_VERSION}
     volumes:
-      - salt-prod-mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:
@@ -42,8 +55,11 @@ services:
       MYSQL_PASSWORD:
 
 volumes:
-  salt-prod-mysql-data:
-    external: true
+  mysql-data:
+    external:
+      name: "${COMPOSE_PROJECT_NAME}-mysql-data"
 
 networks:
-  external:
+  proxy:
+    external:
+      name: nginx-proxy

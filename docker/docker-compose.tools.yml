@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   phpcli:
     image: opensalt/php:7.1-cli
@@ -6,11 +6,11 @@ services:
       SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
       SYMFONY__MYSQL__USER: "${MYSQL_USER}"
       SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "db"
+      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
-      MYSQL_HOST: "db"
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
     volumes_from:
       - app
     working_dir: /var/www/html
