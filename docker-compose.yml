@@ -3,26 +3,20 @@ services:
   app:
     image: "opensalt/app:${COMMIT}"
 
-  phpfpm:
-    image: opensalt/php:7.1-fpm
+  php:
+    image: opensalt/php:7.3-fpm
     depends_on:
       - db
     environment:
-      SYMFONY__MYSQL__DATABASE: "${MYSQL_DATABASE}"
-      SYMFONY__MYSQL__USER: "${MYSQL_USER}"
-      SYMFONY__MYSQL__PASSWORD: "${MYSQL_PASSWORD}"
-      SYMFONY__MYSQL__HOST: "${MYSQL_HOST:-db}"
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
       MYSQL_HOST: "${MYSQL_HOST:-db}"
-      GITHUB_CLIENT_ID:
-      GITHUB_CLIENT_SECRET:
       BRAND_LOGO_URL:
       BRAND_LOGO_STYLE:
       BRAND_LINK_URL:
       BRAND_LINK_STYLE:
-      ALLOW_LOCAL_DEV: 'false'
+      ALLOW_LOCAL_DEV: 'true'
       ALLOW_EXTERNAL_DEV_IPS:
       DEV_COOKIE:
     volumes_from:
@@ -30,25 +24,27 @@ services:
     working_dir: /var/www/html
 
   nginx:
-    image: opensalt/nginx:1.11-alpine
+    image: opensalt/nginx:1.16-alpine
     depends_on:
-      - phpfpm
+      - php
     environment:
-      UPSTREAM_HOST: phpfpm:9000
+      UPSTREAM_HOST: php:9000
     volumes_from:
       - app
     working_dir: /var/www/html
-    networks:
-      default:
-      proxy:
-        aliases:
-          - "${COMPOSE_PROJECT_NAME}-salt"
+    ports:
+      - "${PORT:-4000}:80"
+    #networks:
+      #default:
+        #proxy:
+          #aliases:
+            #- "${COMPOSE_PROJECT_NAME}-salt"
 
   db:
     image: percona:${MYSQL_VERSION}
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro
+      - ./docker/mysql/max_allowed_packet.cnf:/etc/mysql/conf.d/max_allowed_packet.cnf:ro
     environment:
       MYSQL_ROOT_PASSWORD:
       MYSQL_DATABASE:
@@ -57,10 +53,10 @@ services:
 
 volumes:
   mysql-data:
-    external:
-      name: "${COMPOSE_PROJECT_NAME}-mysql-data"
+    #external:
+      #name: "${COMPOSE_PROJECT_NAME}-mysql-data"
 
-networks:
-  proxy:
-    external:
-      name: nginx-proxy
+#networks:
+  #proxy:
+    #external:
+      #name: nginx-proxy
