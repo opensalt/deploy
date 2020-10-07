@@ -8,6 +8,7 @@ services:
     depends_on:
       - db
     environment:
+      SECRET:
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
