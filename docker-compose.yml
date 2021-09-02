@@ -1,0 +1,111 @@
+version: "3.4"
+
+services:
+  crontab:
+    image: opensalt/opensalt:cron-${COMMIT}
+    depends_on:
+      - php
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      #- "./crontab.json:/opt/crontab/config.json:rw"
+    environment:
+      LOG_FILE: /dev/stdout
+
+  php:
+    image: opensalt/opensalt:core-${COMMIT}
+    depends_on:
+      - db
+    environment:
+      APP_ENV: "${APP_ENV:-prod}"
+      APP_SECRET:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_HOST: "${MYSQL_HOST:-db}"
+      DB_USE_RDS_CERT: "${DB_USE_RDS_CERT:-0}"
+      MERCURE_PUBLISH_URL: "${MERCURE_PUBLISH_URL:-http://web/.well-known/mercure}"
+      MERCURE_JWT_TOKEN:
+      TRUSTED_PROXIES:
+      CORS_ALLOW_ORIGIN:
+      BRAND_LOGO_URL:
+      BRAND_LOGO_STYLE:
+      BRAND_LINK_URL:
+      BRAND_LINK_STYLE:
+      FOOTER_LEFT_TEXT:
+      ALLOW_LOCAL_DEV: "true"
+      ALLOW_EXTERNAL_DEV_IPS:
+      DEV_COOKIE:
+      MAILER_TRANSPORT:
+      MAILER_HOST:
+      MAILER_USER:
+      MAILER_PASSWORD:
+      MAILER_AUTH_MODE:
+      MAILER_PORT:
+      USE_MAIL_FEATURE:
+      MAIL_FEATURE_FROM_EMAIL:
+      COMMENTS_FEATURE:
+      COMMENT_ATTACHMENTS:
+      ATTACHMENT_URL_PREFIX:
+      CREATE_ACCOUNT_FEATURE:
+      GOOGLE_CAPTCHA_SITE_KEY:
+      GOOGLE_CAPTCHA_SECRET_KEY:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_S3_BUCKET:
+      AWS_S3_REGION:
+      AWS_S3_PREFIX:
+      BUCKET_PROVIDER:
+      LOCAL_FILESYSTEM_PATH:
+      CASE_NETWORK_CLIENT_ID:
+      CASE_NETWORK_CLIENT_SECRET:
+      CASE_NETWORK_TOKEN_ENDPOINT:
+      CASE_NETWORK_SCOPE:
+    restart: unless-stopped
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+
+  web:
+    image: opensalt/opensalt:web-${COMMIT}
+    depends_on:
+      - php
+    environment:
+      SERVER_NAME: ${SERVER_NAME:-:80}
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY:-!ChangeMe!}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeMe!}
+      MERCURE_TRANSPORT_URL: "${MERCURE_TRANSPORT_URL:-local://local}"
+    restart: unless-stopped
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      default:
+      proxy:
+        aliases:
+          - "${COMPOSE_PROJECT_NAME}-salt"
+
+  db:
+    image: opensalt/opensalt:db-${COMMIT}
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+    volumes:
+      - db_data:/var/lib/mysql:rw
+      # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      #- "./docker/data/mysql:/var/lib/mysql:rw"
+
+volumes:
+  db_data:
+    external:
+      name: "${COMPOSE_PROJECT_NAME}-mysql-data"
+  caddy_data:
+  caddy_config:
+
+networks:
+  proxy:
+    external:
+      name: nginx-proxy
