@@ -26,6 +26,8 @@ Installation
 
 * Run `make migrate` to set up the database
 
+* Run `bin/console salt:org:add` to create your first organisation
+
 * Run `bin/console salt:user:add` to create your first user
 
 * Get IP address of web container using
