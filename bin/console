@@ -1,11 +1,5 @@
 #!/bin/bash
 
-DIR=$(dirname $0)
+cd $(dirname $0)
 
-which docker >/dev/null 2>&1
-
-if [ $? -eq 0 ]; then
-  exec $DIR/console-docker "$@"
-else
-  exec $DIR/console-real "$@"
-fi
+./phpcli ./bin/console-real "$@"
