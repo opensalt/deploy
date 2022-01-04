@@ -73,8 +73,8 @@ services:
       - php
     environment:
       SERVER_NAME: ${SERVER_NAME:-:80}
-      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY:-!ChangeMe!}
-      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeMe!}
+      MERCURE_PUBLISHER_JWT_KEY: "${MERCURE_PUBLISHER_JWT_KEY:-!ChangeMe!}"
+      MERCURE_SUBSCRIBER_JWT_KEY: "${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeMe!}"
       MERCURE_TRANSPORT_URL: "${MERCURE_TRANSPORT_URL:-local://local}"
     restart: unless-stopped
     volumes:
@@ -82,9 +82,10 @@ services:
       - caddy_config:/config
     networks:
       default:
-      proxy:
-        aliases:
-          - "${COMPOSE_PROJECT_NAME}-salt"
+      # Uncomment this and the networks section below if attaching to an existing external network
+      #proxy:
+      #  aliases:
+      #    - "${COMPOSE_PROJECT_NAME}-web"
 
   db:
     image: opensalt/opensalt:db-${COMMIT}
@@ -105,7 +106,7 @@ volumes:
   caddy_data:
   caddy_config:
 
-networks:
-  proxy:
-    external:
-      name: nginx-proxy
+#networks:
+#  proxy:
+#    external:
+#      name: nginx-proxy
