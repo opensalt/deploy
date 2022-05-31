@@ -35,12 +35,7 @@ services:
       ALLOW_LOCAL_DEV: "true"
       ALLOW_EXTERNAL_DEV_IPS:
       DEV_COOKIE:
-      MAILER_TRANSPORT:
-      MAILER_HOST:
-      MAILER_USER:
-      MAILER_PASSWORD:
-      MAILER_AUTH_MODE:
-      MAILER_PORT:
+      MAILER_DSN:
       USE_MAIL_FEATURE:
       MAIL_FEATURE_FROM_EMAIL:
       COMMENTS_FEATURE:
@@ -82,8 +77,8 @@ services:
     cap_add:
       - CAP_NET_BIND_SERVICE
     volumes:
-      - caddy_data:/data
-      - caddy_config:/config
+      - caddy_data:/data/caddy
+      - caddy_config:/config/caddy
     networks:
       default:
       # Uncomment this and the networks section below if attaching to an existing external network
@@ -98,6 +93,7 @@ services:
       MYSQL_DATABASE:
       MYSQL_USER:
       MYSQL_PASSWORD:
+    restart: unless-stopped
     cap_add:
       - SYS_NICE # CAP_SYS_NICE
     volumes:
